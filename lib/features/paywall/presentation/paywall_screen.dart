@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/router.dart';
+import '../../../core/di/providers.dart';
 import '../../../core/design/components/primary_button.dart';
 import '../../../core/design/components/relatey_card.dart';
 import '../../../core/design/components/secondary_button.dart';
@@ -49,7 +49,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Widget _buildHeader() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     Text('Daha net görmek\nister misin?', style: RelateyTypography.displayMedium),
     const SizedBox(height: RelateySpacing.md),
-    Text('Detaylı analizle durumun tam olarak netleşsin.', style: RelateyTypography.bodyLarge.copyWith(color: RelateyColors.textSecondary)),
+    Text('Detaylı yorumla durumun tam olarak netleşsin.', style: RelateyTypography.bodyLarge.copyWith(color: RelateyColors.textSecondary)),
   ]);
   
   Widget _buildBenefits() {
@@ -90,7 +90,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     SecondaryButton(label: 'Pro – ${_proPack.price} (Sınırsız)', onPressed: _onProTap),
   ]);
   
-  Widget _buildPurchaseButton() => PrimaryButton(label: 'Satın Al – ${_packs[_selectedPackIndex].price}', onPressed: _onPurchaseTap);
+  Widget _buildPurchaseButton() => PrimaryButton(label: 'Kredi al – ${_packs[_selectedPackIndex].price}', onPressed: _onPurchaseTap);
   
   Widget _buildDevSimulateButton() => Container(
     padding: const EdgeInsets.all(RelateySpacing.md),

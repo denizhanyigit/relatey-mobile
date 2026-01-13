@@ -1,7 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../core/design/theme.dart';
 import '../core/design/tokens/colors.dart';
@@ -13,98 +11,79 @@ import 'bootstrap.dart';
 import 'router.dart';
 
 /// Main app widget.
-class RelateyApp extends ConsumerStatefulWidget {
+class RelateyApp extends StatelessWidget {
   const RelateyApp({super.key});
-  
+
   @override
-  ConsumerState<RelateyApp> createState() => _RelateyAppState();
+  Widget build(BuildContext context) {
+    return ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(appDatabase),
+      ],
+      child: const _RelateyAppContent(),
+    );
+  }
 }
 
-class _RelateyAppState extends ConsumerState<RelateyApp> {
-  bool _isInitialized = false;
-  late final Dio _dio;
-  
+class _RelateyAppContent extends ConsumerStatefulWidget {
+  const _RelateyAppContent();
+
+  @override
+  ConsumerState<_RelateyAppContent> createState() => _RelateyAppContentState();
+}
+
+class _RelateyAppContentState extends ConsumerState<_RelateyAppContent> {
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
-  
-  Future<void> _initializeApp() async {
-    const storage = FlutterSecureStorage(
-      aOptions: AndroidOptions(encryptedSharedPreferences: true),
-      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-    );
-    
-    _dio = createDio(
-      storage: storage,
-      onRefreshFailed: () async {
-        final authController = ref.read(authControllerProvider.notifier);
-        await authController.reauthenticate();
-      },
-    );
-    
-    setState(() => _isInitialized = true);
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _ensureAuthAndLoadEntitlements();
-    });
-  }
-  
-  Future<void> _ensureAuthAndLoadEntitlements() async {
+
+  Future<void> _initialize() async {
+    // Set up auth refresh callback.
+    ref.read(onAuthRefreshFailedProvider.notifier).state = () async {
+      final authController = ref.read(authControllerProvider.notifier);
+      await authController.reauthenticate();
+    };
+
     final authController = ref.read(authControllerProvider.notifier);
     await authController.initialize();
-    
-    final entitlementsController = ref.read(
-      entitlementsControllerProvider.notifier,
-    );
+
+    final entitlementsController = ref.read(entitlementsControllerProvider.notifier);
     await entitlementsController.loadFromCache();
+
+    if (mounted) setState(() => _initialized = true);
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) {
+    final authState = ref.watch(authControllerProvider);
+
+    if (!_initialized ||
+        authState == AuthState.initial ||
+        authState == AuthState.authenticating) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: RelateyTheme.light,
         home: const _SplashScreen(),
       );
     }
-    
-    return ProviderScope(
-      overrides: [
-        dioProvider.overrideWithValue(_dio),
-        databaseProvider.overrideWithValue(appDatabase),
-      ],
-      child: Consumer(
-        builder: (context, ref, _) {
-          final router = ref.watch(routerProvider);
-          final authState = ref.watch(authControllerProvider);
-          
-          if (authState == AuthState.initial ||
-              authState == AuthState.authenticating) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: RelateyTheme.light,
-              home: const _SplashScreen(),
-            );
-          }
-          
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: 'Relatey',
-            theme: RelateyTheme.light,
-            routerConfig: router,
-          );
-        },
-      ),
+
+    final router = ref.watch(routerProvider);
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'Relatey',
+      theme: RelateyTheme.light,
+      routerConfig: router,
     );
   }
 }
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

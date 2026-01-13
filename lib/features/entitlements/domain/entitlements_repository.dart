@@ -5,6 +5,6 @@ abstract class EntitlementsRepository {
   Future<Entitlements?> getCachedEntitlements();
   Stream<Entitlements?> getEntitlementsStream();
   Future<void> updateCache(Entitlements entitlements);
-  Future<void> deductCredits(int amount);
+  /// DEV ONLY: Simulate credit addition for testing.
   Future<void> addCredits(int amount);
 }

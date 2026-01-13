@@ -17,12 +17,12 @@ class EntitlementsState {
 class EntitlementsController extends StateNotifier<EntitlementsState> {
   EntitlementsController({required EntitlementsRepository repository}) : _repository = repository, super(const EntitlementsState());
   final EntitlementsRepository _repository;
-  
+
   Future<void> loadFromCache() async {
     final cached = await _repository.getCachedEntitlements();
     if (cached != null) state = state.copyWith(entitlements: cached);
   }
-  
+
   Future<void> refresh() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -30,10 +30,24 @@ class EntitlementsController extends StateNotifier<EntitlementsState> {
       state = state.copyWith(entitlements: entitlements, isLoading: false);
     } catch (e) { state = state.copyWith(isLoading: false, error: e.toString()); }
   }
-  
-  bool canUnlockPremiumDetail() => AccessPolicy.canUnlockPremiumDetail(hasPro: state.hasPro, credits: state.credits);
-  AccessResult checkPremiumDetailAccess() => AccessPolicy.checkPremiumDetailAccess(hasPro: state.hasPro, credits: state.credits);
-  Future<void> deductCredits(int amount) async { await _repository.deductCredits(amount); await loadFromCache(); }
-  Future<void> addCredits(int amount) async { await _repository.addCredits(amount); await loadFromCache(); }
-  bool canUseLens(String lensType) => AccessPolicy.canUseLens(lensType: lensType, hasPro: state.hasPro, credits: state.credits);
+
+  /// Generic access check using centralized AccessPolicy.
+  AccessResult checkAccess(AccessAction action) => AccessPolicy.checkAccess(
+    action: action,
+    hasPro: state.hasPro,
+    credits: state.credits,
+  );
+
+  /// Convenience: check if user can perform action.
+  bool canAccess(AccessAction action) => AccessPolicy.canAccess(
+    action: action,
+    hasPro: state.hasPro,
+    credits: state.credits,
+  );
+
+  /// DEV ONLY: Simulate credit addition for testing.
+  Future<void> addCredits(int amount) async {
+    await _repository.addCredits(amount);
+    await loadFromCache();
+  }
 }

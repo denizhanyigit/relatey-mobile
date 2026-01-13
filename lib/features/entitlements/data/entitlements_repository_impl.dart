@@ -37,14 +37,6 @@ class EntitlementsRepositoryImpl implements EntitlementsRepository {
   }
   
   @override
-  Future<void> deductCredits(int amount) async {
-    final current = await getCachedEntitlements();
-    if (current == null) return;
-    final newCredits = (current.credits - amount).clamp(0, 999);
-    await _database.upsertEntitlementsCache(hasPro: current.hasPro, credits: newCredits, expiresAt: current.expiresAt);
-  }
-  
-  @override
   Future<void> addCredits(int amount) async {
     final current = await getCachedEntitlements();
     final currentCredits = current?.credits ?? 0;
