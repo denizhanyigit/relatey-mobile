@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/decisions/presentation/context_screen.dart';
 import '../features/decisions/presentation/home_screen.dart';
+import '../features/decisions/presentation/share_situation_screen.dart';
 import '../features/decisions/presentation/summary_screen.dart';
 import '../features/paywall/presentation/paywall_screen.dart';
 import '../features/welcome/presentation/welcome_screen.dart';
@@ -32,6 +33,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final situationType = state.extra as String? ?? 'should_message';
           return ContextScreen(situationType: situationType);
+        },
+      ),
+      GoRoute(
+        path: '/decision/share',
+        name: 'share-situation',
+        builder: (context, state) {
+          final situationType = state.extra as String? ?? 'should_message';
+          return ShareSituationScreen(situationType: situationType);
         },
       ),
       GoRoute(

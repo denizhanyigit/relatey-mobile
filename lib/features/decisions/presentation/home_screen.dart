@@ -178,7 +178,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onSituationTap(BuildContext context, _SituationData situation) {
-    context.push('/decision/context', extra: situation.key);
+    context.push('/decision/share', extra: situation.key);
   }
 
   void _onSettingsTap(BuildContext context) {
