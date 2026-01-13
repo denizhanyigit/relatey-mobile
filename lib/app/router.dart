@@ -6,15 +6,21 @@ import '../features/decisions/presentation/context_screen.dart';
 import '../features/decisions/presentation/home_screen.dart';
 import '../features/decisions/presentation/summary_screen.dart';
 import '../features/paywall/presentation/paywall_screen.dart';
+import '../features/welcome/presentation/welcome_screen.dart';
 
 // ============ Router ============
 // All providers are now in core/di/providers.dart
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/welcome',
     debugLogDiagnostics: true,
     routes: [
+      GoRoute(
+        path: '/welcome',
+        name: 'welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
       GoRoute(
         path: '/home',
         name: 'home',
