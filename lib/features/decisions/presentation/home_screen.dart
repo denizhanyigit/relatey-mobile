@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/design/components/bottom_pill_nav.dart';
-import '../../../core/design/components/home_lens_tile.dart';
-import '../../../core/design/components/section_header_row.dart';
 import '../../../core/design/components/situation_tile.dart';
 import '../../../core/design/tokens/colors.dart';
 import '../../../core/design/tokens/radii.dart';
@@ -14,11 +12,16 @@ import '../../../core/design/tokens/typography.dart';
 ///
 /// This is the main entry point for the decisions feature,
 /// allowing users to select a relationship situation to clarify.
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RelateyColors.background,
       body: Stack(
@@ -41,6 +44,20 @@ class HomeScreen extends ConsumerWidget {
                   child: _TitleBlock(),
                 ),
 
+                // Lenses teaser row
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: RelateySpacing.screenHorizontal,
+                    ),
+                    child: const _LensTeaserRow(),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: RelateySpacing.lg),
+                ),
+
                 // Situation tiles list
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
@@ -49,9 +66,10 @@ class HomeScreen extends ConsumerWidget {
                   sliver: SliverList.separated(
                     itemCount: _situations.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: RelateySpacing.xl),
+                        const SizedBox(height: RelateySpacing.lg),
                     itemBuilder: (context, index) {
                       final situation = _situations[index];
+
                       return SituationTile(
                         title: situation.title,
                         subtitle: situation.subtitle,
@@ -60,11 +78,6 @@ class HomeScreen extends ConsumerWidget {
                       );
                     },
                   ),
-                ),
-
-                // Different Lenses section
-                SliverToBoxAdapter(
-                  child: _buildLensesSection(context),
                 ),
 
                 // Bottom padding for nav bar
@@ -164,57 +177,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLensesSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        RelateySpacing.screenHorizontal,
-        RelateySpacing.xxxl,
-        RelateySpacing.screenHorizontal,
-        RelateySpacing.sm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SectionHeaderRow(title: 'Different Lenses'),
-          const SizedBox(height: RelateySpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: HomeLensTile(
-                  label: 'Dream\nReflection',
-                  icon: Icons.bedtime_outlined,
-                  onTap: () => _onLensTap(context, 'dream'),
-                ),
-              ),
-              const SizedBox(width: RelateySpacing.md),
-              Expanded(
-                child: HomeLensTile(
-                  label: 'Stellar\nInsights',
-                  icon: Icons.auto_awesome_outlined,
-                  onTap: () => _onLensTap(context, 'stellar'),
-                ),
-              ),
-              const SizedBox(width: RelateySpacing.md),
-              Expanded(
-                child: HomeLensTile(
-                  label: 'Intuitive\nPerspective',
-                  icon: Icons.visibility_outlined,
-                  onTap: () => _onLensTap(context, 'intuitive'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   void _onSituationTap(BuildContext context, _SituationData situation) {
     context.push('/decision/context', extra: situation.key);
-  }
-
-  void _onLensTap(BuildContext context, String lensKey) {
-    // Lens navigation placeholder
   }
 
   void _onSettingsTap(BuildContext context) {
@@ -224,6 +188,129 @@ class HomeScreen extends ConsumerWidget {
   void _onNavTap(BuildContext context, int index) {
     // Navigation placeholder
     // 0 = Home (current), 1 = History, 2 = Guides, 3 = Profile
+  }
+}
+
+/// Lightweight teaser row for lens discovery.
+///
+/// Placed strategically between decision cards to introduce the concept
+/// of looking at a situation from different perspectives.
+///
+/// Design intent:
+/// "You can also look at this another way" — not a premium feature.
+///
+/// Single-line layout:
+/// - Small secondary-colored title
+/// - 3 compact pill buttons (Dream, Stellar, Intuitive)
+/// - No emphasized branding or credit mentions
+class _LensTeaserRow extends StatelessWidget {
+  const _LensTeaserRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Micro title — secondary text for subtle emphasis
+        Text(
+          'Try a different lens',
+          style: RelateyTypography.labelSmall.copyWith(
+            color: RelateyColors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: RelateySpacing.sm),
+
+        // 3 compact pill buttons in a responsive row
+        Row(
+          children: [
+            _LensPill(
+              label: 'Dream',
+              icon: Icons.bedtime_outlined,
+              onTap: () => _navigateToLens(context, 'dream'),
+            ),
+            const SizedBox(width: RelateySpacing.sm),
+            _LensPill(
+              label: 'Stellar',
+              icon: Icons.auto_awesome_outlined,
+              onTap: () => _navigateToLens(context, 'stellar'),
+            ),
+            const SizedBox(width: RelateySpacing.sm),
+            _LensPill(
+              label: 'Intuitive',
+              icon: Icons.visibility_outlined,
+              onTap: () => _navigateToLens(context, 'intuitive'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _navigateToLens(BuildContext context, String lensKey) {
+    // Lens navigation — lightweight, no paywall or premium language
+    // Implementation: context.push('/lens/$lensKey', ...)
+  }
+}
+
+/// Compact pill-shaped button for lens navigation.
+///
+/// Design specs:
+/// - Height: 40px
+/// - Rounded (radiusFull)
+/// - Soft surface background
+/// - No shadows
+/// - Icons (18px) + label inline
+/// - Expandable to fill equal space in row
+///
+/// Intent: Lightweight discovery, not premium emphasis.
+class _LensPill extends StatelessWidget {
+  const _LensPill({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: RelateyColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: RelateyColors.borderSubtle,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: RelateyColors.textPrimary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: RelateyTypography.labelSmall.copyWith(
+                  color: RelateyColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
