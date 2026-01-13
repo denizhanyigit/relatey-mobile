@@ -9,6 +9,15 @@ abstract final class RelateyShadows {
     BoxShadow(color: RelateyColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
   ];
 
+  // Soft card shadow (very subtle, like shadow-soft in the design)
+  static const List<BoxShadow> soft = [
+    BoxShadow(
+      color: Color(0x0A000000), // rgba(0,0,0,0.04)
+      blurRadius: 30,
+      offset: Offset(0, 8),
+    ),
+  ];
+
   static const List<BoxShadow> card = [
     BoxShadow(color: RelateyColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
   ];
@@ -21,6 +30,15 @@ abstract final class RelateyShadows {
   static const List<BoxShadow> modal = [
     BoxShadow(color: RelateyColors.shadowMedium, blurRadius: 24, offset: Offset(0, 8)),
     BoxShadow(color: RelateyColors.shadow, blurRadius: 8, offset: Offset(0, 2)),
+  ];
+
+  // Navigation bar shadow (floating pill nav)
+  static const List<BoxShadow> navigation = [
+    BoxShadow(
+      color: Color(0x1F000000), // rgba(0,0,0,0.12)
+      blurRadius: 32,
+      offset: Offset(0, 8),
+    ),
   ];
 
   // Primary-tinted shadows for hero elements and CTAs

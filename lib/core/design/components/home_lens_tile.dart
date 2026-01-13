@@ -5,32 +5,30 @@ import '../tokens/shadows.dart';
 import '../tokens/spacing.dart';
 import '../tokens/typography.dart';
 
-/// A pressable card tile for situation/decision selection.
+/// A grid-style lens tile for the home screen "Different Lenses" section.
 ///
 /// Features:
-/// - Rounded card with soft shadow
-/// - Title and subtitle on the left
-/// - Icon in a rounded purple container on the right
+/// - Vertical card layout with centered content
+/// - Circular icon container at top
+/// - Two-line label below
 /// - Subtle press feedback with scale animation
-class SituationTile extends StatefulWidget {
-  const SituationTile({
+class HomeLensTile extends StatefulWidget {
+  const HomeLensTile({
     super.key,
-    required this.title,
+    required this.label,
+    required this.icon,
     required this.onTap,
-    this.subtitle,
-    this.icon,
   });
 
-  final String title;
+  final String label;
+  final IconData icon;
   final VoidCallback onTap;
-  final String? subtitle;
-  final IconData? icon;
 
   @override
-  State<SituationTile> createState() => _SituationTileState();
+  State<HomeLensTile> createState() => _HomeLensTileState();
 }
 
-class _SituationTileState extends State<SituationTile>
+class _HomeLensTileState extends State<HomeLensTile>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -81,7 +79,8 @@ class _SituationTileState extends State<SituationTile>
         onTapCancel: _onTapCancel,
         onTap: widget.onTap,
         child: Container(
-          padding: const EdgeInsets.all(RelateySpacing.cardPaddingLarge),
+          height: 128,
+          padding: const EdgeInsets.all(RelateySpacing.lg),
           decoration: BoxDecoration(
             color: RelateyColors.surface,
             borderRadius: RelateyRadii.borderRadiusXl,
@@ -91,43 +90,31 @@ class _SituationTileState extends State<SituationTile>
             ),
             boxShadow: RelateyShadows.soft,
           ),
-          child: Row(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: RelateyTypography.titleLarge,
-                    ),
-                    if (widget.subtitle != null) ...[
-                      const SizedBox(height: RelateySpacing.xs),
-                      Text(
-                        widget.subtitle!,
-                        style: RelateyTypography.bodyMedium,
-                      ),
-                    ],
-                  ],
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: RelateyColors.primarySubtle,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    widget.icon,
+                    color: RelateyColors.primary,
+                    size: 22,
+                  ),
                 ),
               ),
-              const SizedBox(width: RelateySpacing.lg),
-              if (widget.icon != null)
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: RelateyColors.accentPurpleSurface,
-                    borderRadius: RelateyRadii.borderRadiusMd,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      widget.icon,
-                      color: RelateyColors.accentPurple,
-                      size: 26,
-                    ),
-                  ),
-                ),
+              const SizedBox(height: RelateySpacing.md),
+              Text(
+                widget.label,
+                style: RelateyTypography.labelMedium,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+              ),
             ],
           ),
         ),
